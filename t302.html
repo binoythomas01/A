@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holy Baptism | Maeve Binoy</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,600&family=Cinzel:wght@400;500;600;700;800&family=Pinyon+Script&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #344759;
+      --navy: #152536;
+      --gold: #dfba73;
+      --card-bg: rgba(255, 255, 255, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      background: #dce7f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .viewport {
+      width: 100%;
+      max-width: 440px;
+      min-height: 100vh;
+      position: relative;
+      background: linear-gradient(180deg, #dce8f2 0%, #f6eef0 45%, #e3edf5 100%);
+      box-shadow: 0 0 45px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    /* Falling Petals & Fireworks Canvas */
+    #fx-canvas {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      pointer-events: none;
+      z-index: 500;
+    }
+
+    /* Music Toggle Button */
+    #music-toggle {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 600;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #music-toggle.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #music-toggle:active {
+      transform: scale(0.92);
+    }
+
+    /* Ambient background soft clouds */
+    .decor-cloud {
+      position: absolute;
+      background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ========================================================
+       STAGE 1: ENVELOPE OPENING ANIMATION
+       ======================================================== */
+    #envelope-screen {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      height: 100vh;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #d3e3f0 0%, #f7ebec 100%);
+      transition: opacity 1s ease 0.4s, visibility 1s ease 0.4s;
+    }
+
+    #envelope-screen.dismissed {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .envelope-box {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      background: #dce4eb;
+      border-radius: 6px;
+      box-shadow: 0 20px 45px rgba(21, 37, 54, 0.2);
+      cursor: pointer;
+      perspective: 800px;
+    }
+
+    .flap-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 110px solid #f4f7f9;
+      transform-origin: top;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+    }
+
+    .flap-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 110px solid #ffffff;
+      z-index: 4;
+    }
+
+    .flap-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-top: 100px solid transparent;
+      border-bottom: 100px solid transparent;
+      border-left: 150px solid #edf2f6;
+      z-index: 3;
+    }
+
+    .flap-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-top: 100px solid transparent;
+      border-bottom: 100px solid transparent;
+      border-right: 150px solid #e7edf2;
+      z-index: 3;
+    }
+
+    /* Wax Seal */
+    .seal {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 82px;
+      height: 80px;
+      background: radial-gradient(circle at 40% 35%, #2a4d85 0%, #1c3664 60%, #152747 100%);
+      border-radius: 46% 54% 48% 52% / 54% 46% 54% 46%;
+      box-shadow: 0 10px 24px rgba(12, 23, 45, 0.45),
+                  inset 1.5px 2px 4px rgba(255, 255, 255, 0.35),
+                  inset -2px -2px 6px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 6;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      cursor: pointer;
+    }
+
+    .seal-step-ring {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 0 0 1px rgba(10, 20, 40, 0.6),
+                  0 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .seal-inner-dish {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #244375 0%, #19315b 80%);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6),
+                  inset -1px -1px 2px rgba(255, 255, 255, 0.2),
+                  0 0 0 1.5px rgba(20, 36, 68, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .seal-letter {
+      font-family: 'Pinyon Script', 'Brush Script MT', cursive;
+      font-size: 32px;
+      color: #e5c886;
+      line-height: 1;
+      display: inline-block;
+      user-select: none;
+      transform: translateX(-4px) translateY(-1px);
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8),
+                   0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .mini-letter {
+      position: absolute;
+      left: 15px;
+      bottom: 5px;
+      width: 270px;
+      height: 180px;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .mini-seal-tag {
+      width: 44px;
+      height: 42px;
+      border-radius: 46% 54% 48% 52% / 54% 46% 54% 46%;
+      background: radial-gradient(circle at 40% 35%, #2a4d85 0%, #1c3664 100%);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .mini-seal-letter {
+      font-family: 'Pinyon Script', 'Brush Script MT', cursive;
+      font-size: 20px;
+      color: #e5c886;
+      line-height: 1;
+      display: inline-block;
+      transform: translateX(-2.5px) translateY(-1px);
+    }
+
+    .mini-name {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--navy);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .instruction-text {
+      margin-top: 36px;
+      text-align: center;
+    }
+
+    .instruction-text h3 {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      letter-spacing: 5px;
+      font-size: 19px;
+      text-transform: uppercase;
+      color: #1e3347;
+      font-weight: 600;
+    }
+
+    .instruction-text p {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 26px;
+      margin-top: 4px;
+      color: #63788c;
+    }
+
+    .envelope-box.is-opened .seal {
+      transform: translateX(-50%) scale(0.6);
+      opacity: 0;
+    }
+
+    .envelope-box.is-opened .flap-top {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-box.is-opened .mini-letter {
+      transform: translateY(-130px);
+      z-index: 7;
+    }
+
+    /* ========================================================
+       STAGE 2: FULL INVITATION PAGE
+       ======================================================== */
+    #invitation-scroll {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      padding: 40px 22px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
+    }
+
+    #invitation-scroll.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .main-card {
+      background: var(--card-bg);
+      border-radius: 26px;
+      width: 100%;
+      padding: 34px 20px 30px;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(45, 69, 93, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      margin-bottom: 24px;
+    }
+
+    .crest {
+      width: 50px;
+      height: 48px;
+      border-radius: 46% 54% 48% 52% / 54% 46% 54% 46%;
+      background: radial-gradient(circle at 40% 35%, #2a4d85 0%, #1c3664 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .crest-letter {
+      color: #e5c886;
+      font-family: 'Pinyon Script', 'Brush Script MT', cursive;
+      font-size: 24px;
+      line-height: 1;
+      display: inline-block;
+      transform: translateX(-3px) translateY(-1px);
+    }
+
+    .subtitle-script {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 26px;
+      color: #6d8194;
+      line-height: 1.1;
+    }
+
+    .subtitle-caps {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #8c9ba8;
+      margin: 6px 0 12px;
+    }
+
+    .guest-baby-name {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: #12212f;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .parents-tag {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11px;
+      letter-spacing: 3.5px;
+      color: #566c7f;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .arch-frame {
+      width: 190px;
+      height: 230px;
+      margin: 0 auto 20px;
+      border-radius: 95px 95px 18px 18px;
+      overflow: hidden;
+      border: 4px solid #ffffff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      background: #f0f3f6;
+    }
+
+    .arch-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .verse-wrap {
+      margin: 10px 0 14px;
+      padding: 0 8px;
+    }
+
+    .cross-symbol {
+      font-size: 24px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .verse-body {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.5;
+      color: #314456;
+    }
+
+    .verse-cite {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #7b8d9e;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .body-message {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.7;
+      color: #3b4e60;
+      margin-top: 14px;
+      padding: 0 6px;
+    }
+
+    .itinerary-heading {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 20px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 10px 0 16px;
+    }
+
+    /* ========================================================
+       ORIGINAL EVENT TILES (EXACT STYLING RESTORED)
+       ======================================================== */
+    .event-tile {
+      position: relative;
+      width: 100%;
+      border-radius: 22px;
+      padding: 26px 18px 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      overflow: hidden;
+      box-shadow: 0 14px 32px rgba(21, 37, 54, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+    }
+
+    .event-tile-bg {
+      position: absolute;
+      inset: -5px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(1px);
+      transform: scale(1.02);
+      z-index: 1;
+    }
+
+    .bg-church {
+      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVGPRfE_4b0ViPCFqPJcqalfJ8odaB7VdXcjOnCiQBhpbBwL39MeB7TMxJ&s=10');
+    }
+
+    .bg-hall {
+      background-image: url('https://content.jdmagicbox.com/comp/thrissur/j4/9999px487.x487.180816212515.v1j4/catalogue/hamara-hotels-pvt-ltd-eravimangalam-thrissur-hotels-botrn2ja4b.jpg');
+    }
+
+    .event-tile::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.88) 30%, rgba(245, 248, 252, 0.72) 100%);
+      backdrop-filter: blur(0.5px);
+      -webkit-backdrop-filter: blur(0.5px);
+      z-index: 2;
+    }
+
+    .event-tile-content {
+      position: relative;
+      z-index: 3;
+    }
+
+    .schedule-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 20px;
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #6a5837;
+      font-weight: 700;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .event-cat {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 31px;
+      color: #8c6d37;
+      line-height: 1.1;
+      text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .event-title {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 23px;
+      font-weight: 600;
+      color: #8f6a32;
+      margin: 3px 0 4px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 6px rgba(255, 255, 255, 0.95), 0 0 1px #fff;
+    }
+
+    .event-place {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11.5px;
+      letter-spacing: 2.5px;
+      color: #6c8091;
+      margin-bottom: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .maps-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(240, 246, 252, 0.45) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #3b2c14;
+      text-decoration: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 10.5px;
+      letter-spacing: 2.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      box-shadow: 0 4px 16px rgba(119, 87, 34, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .maps-link:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 246, 252, 0.65) 100%);
+      border-color: rgba(212, 175, 55, 0.85);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(119, 87, 34, 0.18), inset 0 1px 2px rgba(255, 255, 255, 1);
+    }
+
+    /* ========================================================
+       STANDALONE CALENDAR ACTION BUTTON
+       ======================================================== */
+    .calendar-action-wrap {
+      margin: 10px 0 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-add-calendar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 32px;
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11.5px;
+      letter-spacing: 2.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #2b1f09;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 237, 219, 0.9) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.7);
+      box-shadow: 0 8px 24px rgba(180, 140, 45, 0.18), inset 0 1px 2px #fff;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .btn-add-calendar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(180, 140, 45, 0.28);
+      border-color: rgba(212, 175, 55, 0.95);
+    }
+
+    .btn-add-calendar:active {
+      transform: scale(0.97);
+    }
+
+    /* ========================================================
+       SIGNOFF & DYNAMIC STATUS
+       ======================================================== */
+    .signoff-section {
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .signoff-prefix {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 24px;
+      color: #566c7f;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .signoff-names {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 46px;
+      color: #24394e;
+      display: block;
+      line-height: 1.1;
+    }
+
+    /* Pre-Ceremony Countdown Container */
+    #countdown-wrapper {
+      margin-top: 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 320px;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 16px;
+      padding: 14px 14px 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      transition: opacity 0.5s ease;
+    }
+
+    .countdown-title {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 24px;
+      color: #566c7f;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+
+    .countdown-timer {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .time-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 52px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 8px 4px 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(45, 69, 93, 0.06);
+      border: 1px solid #eef3f7;
+    }
+
+    .time-val {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    .time-lbl {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #7b8d9e;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* ========================================================
+       POST-CEREMONY CELEBRATION POP-UP
+       ======================================================== */
+    #celebration-popup {
+      display: none;
+      margin-top: 22px;
+      width: 100%;
+      max-width: 350px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 246, 237, 0.92) 100%);
+      border-radius: 20px;
+      padding: 24px 18px 22px;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(177, 137, 54, 0.22), 0 0 0 1px rgba(223, 186, 115, 0.55);
+      animation: popIn 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      position: relative;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.85) translateY(18px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .popup-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fbf5e6 0%, #ecd497 70%, #c49942 100%);
+      color: #2b1f09;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(196, 153, 66, 0.35);
+      margin-bottom: 12px;
+    }
+
+    .popup-title {
+      font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #172c42;
+      letter-spacing: 0.5px;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+
+    .popup-subtitle {
+      font-family: 'Alex Brush', 'Brush Script MT', cursive;
+      font-size: 28px;
+      color: #a88339;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .popup-text {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #556c80;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="viewport">
+    <!-- Music Mute/Unmute Control -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Toggle Atmosphere Music">🎵</button>
+
+    <!-- Retina-ready Canvas for Petals & Fireworks -->
+    <canvas id="fx-canvas"></canvas>
+
+    <div class="decor-cloud" style="width: 250px; height: 120px; top: 12%; left: -60px;"></div>
+    <div class="decor-cloud" style="width: 280px; height: 140px; top: 40%; right: -80px;"></div>
+
+    <!-- STAGE 1: ENVELOPE OPENING OVERLAY -->
+    <div id="envelope-screen">
+      <div class="envelope-box" id="envelope" onclick="startOpening()">
+        <div class="flap-top"></div>
+        <div class="flap-left"></div>
+        <div class="flap-right"></div>
+        <div class="flap-bottom"></div>
+
+        <!-- Blue Wax Seal -->
+        <div class="seal">
+          <div class="seal-step-ring">
+            <div class="seal-inner-dish">
+              <span class="seal-letter">M</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-letter">
+          <div class="mini-seal-tag">
+            <span class="mini-seal-letter">M</span>
+          </div>
+          <div class="mini-name">Maeve Binoy</div>
+          <div style="font-family: 'Cinzel', 'Times New Roman', serif; font-size: 9px; letter-spacing: 2px; color: #7b8d9e; margin-top: 4px; font-weight: 600;">27 • SEPTEMBER • 2026</div>
+        </div>
+      </div>
+
+      <div class="instruction-text">
+        <h3>You're Invited</h3>
+        <p>Tap the seal to open</p>
+      </div>
+    </div>
+
+    <!-- STAGE 2: INVITATION MAIN CONTENT -->
+    <main id="invitation-scroll">
+      <div class="main-card">
+        <div class="crest">
+          <span class="crest-letter">M</span>
+        </div>
+        <div class="subtitle-script">Christening of</div>
+        <div class="subtitle-caps">Our Little Princess</div>
+        <h1 class="guest-baby-name">Maeve Binoy</h1>
+        <div class="parents-tag">D/O Binoy & Anitta</div>
+
+        <div class="arch-frame">
+          <img src="https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&w=600&q=80" alt="Baby Maeve" />
+        </div>
+
+        <div class="verse-wrap">
+          <div class="cross-symbol">✝</div>
+          <p class="verse-body">“For this child we have prayed, and the Lord has granted our prayer.”</p>
+          <p class="verse-cite">1 Samuel 1:27</p>
+        </div>
+
+        <p class="body-message">
+          With hearts filled with joy and thankfulness to the Almighty, we warmly invite you and your family to bless our daughter Maeve as she receives the Sacrament of Holy Baptism.
+        </p>
+      </div>
+
+      <div class="itinerary-heading">The Celebration</div>
+
+      <!-- Item 1: Church (Original design) -->
+      <div class="event-tile">
+        <div class="event-tile-bg bg-church"></div>
+        <div class="event-tile-content">
+          <div class="schedule-badge">27-09-2026 • 11:30 AM</div>
+          <div class="event-cat">The Ceremony</div>
+          <div class="event-title">St. Antony's Church</div>
+          <div class="event-place">Mannuthy, Thrissur</div>
+          <a href="https://maps.app.goo.gl/YacmdeoQfvU8uSXRA" target="_blank" rel="noopener noreferrer" class="maps-link">
+            📍 View on Maps
+          </a>
+        </div>
+      </div>
+
+      <!-- Item 2: Hotel (Original design) -->
+      <div class="event-tile">
+        <div class="event-tile-bg bg-hall"></div>
+        <div class="event-tile-content">
+          <div class="schedule-badge">Following the Ceremony</div>
+          <div class="event-cat">The Lunch Reception</div>
+          <div class="event-title">Hamara Hotels</div>
+          <div class="event-place">Thrissur</div>
+          <a href="https://maps.app.goo.gl/qPzGpJAkhRbhSAYc6?g_st=ac" target="_blank" rel="noopener noreferrer" class="maps-link">
+            📍 View on Maps
+          </a>
+        </div>
+      </div>
+
+      <!-- Unified "Add to Calendar" button -->
+      <div class="calendar-action-wrap">
+        <button onclick="handleAddToCalendar()" class="btn-add-calendar">
+          📅 Add to Calendar
+        </button>
+      </div>
+
+      <!-- Sign-off -->
+      <div class="signoff-section">
+        <span class="signoff-prefix">With love</span>
+        <span class="signoff-names">Binoy & Anitta</span>
+      </div>
+
+      <!-- STATE A: Pre-Ceremony Countdown -->
+      <div id="countdown-wrapper">
+        <div class="countdown-title">Maeve gets baptised in</div>
+        <div class="countdown-timer">
+          <div class="time-unit">
+            <span class="time-val" id="cd-days">00</span>
+            <span class="time-lbl">Days</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="cd-hours">00</span>
+            <span class="time-lbl">Hours</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="cd-mins">00</span>
+            <span class="time-lbl">Mins</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="cd-secs">00</span>
+            <span class="time-lbl">Secs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE B: Post-Ceremony Announcement Pop-Up -->
+      <div id="celebration-popup">
+        <div class="popup-badge">✝</div>
+        <div class="popup-title">Maeve is Baptised!</div>
+        <div class="popup-subtitle">Praise & Glory to God</div>
+        <div class="popup-text">Thank you for your love, prayers & blessings</div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    // ========================================================
+    // 1. WARM, FEEL-GOOD AMBIENT MUSIC ENGINE (POLYPHONIC MUSIC BOX / HARP)
+    // ========================================================
+    let audioCtx = null;
+    let isMusicPlaying = false;
+    let melodyStep = 0;
+    let melodyTimer = null;
+
+    // Harmonic chord progressions (warm & uplifting, tuned in D Major / B minor)
+    const notesFreq = {
+      D4: 293.66, Fs4: 369.99, A4: 440.00, B4: 493.88,
+      Cs5: 554.37, D5: 587.33, E5: 659.25, Fs5: 739.99, A5: 880.00
+    };
+
+    const melodyScore = [
+      { notes: [notesFreq.D4, notesFreq.A4, notesFreq.Fs5], duration: 1.6 },
+      { notes: [notesFreq.D5, notesFreq.A5], duration: 1.4 },
+      { notes: [notesFreq.Fs4, notesFreq.Cs5, notesFreq.Fs5], duration: 1.6 },
+      { notes: [notesFreq.B4, notesFreq.E5], duration: 1.4 },
+      { notes: [notesFreq.B4, notesFreq.D5, notesFreq.Fs5], duration: 1.8 },
+      { notes: [notesFreq.Cs5, notesFreq.E5, notesFreq.A5], duration: 1.8 }
+    ];
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playWarmChord(frequencies) {
+      if (!audioCtx || !isMusicPlaying) return;
+      const now = audioCtx.currentTime;
+
+      frequencies.forEach((freq, i) => {
+        const noteDelay = i * 0.045; // Gentle strum arpeggiation
+        const startTime = now + noteDelay;
+
+        // Primary bell tone
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        // Harmonic overtone for natural acoustic warmth
+        const harm = audioCtx.createOscillator();
+        const harmGain = audioCtx.createGain();
+        harm.type = 'sine';
+        harm.frequency.setValueAtTime(freq * 2, startTime);
+
+        // Soft attack and warm, lingering release
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.045, startTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 2.8);
+
+        harmGain.gain.setValueAtTime(0, startTime);
+        harmGain.gain.linearRampToValueAtTime(0.015, startTime + 0.05);
+        harmGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        harm.connect(harmGain);
+        harmGain.connect(audioCtx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + 3.0);
+        harm.start(startTime);
+        harm.stop(startTime + 2.0);
+      });
+    }
+
+    function scheduleNextPhrase() {
+      if (!isMusicPlaying) return;
+      const stepData = melodyScore[melodyStep % melodyScore.length];
+      playWarmChord(stepData.notes);
+      melodyStep++;
+      melodyTimer = setTimeout(scheduleNextPhrase, stepData.duration * 1000);
+    }
+
+    function startAmbientMelody() {
+      isMusicPlaying = true;
+      scheduleNextPhrase();
+    }
+
+    function toggleAudio() {
+      initAudio();
+      const btn = document.getElementById('music-toggle');
+      if (isMusicPlaying) {
+        isMusicPlaying = false;
+        clearTimeout(melodyTimer);
+        btn.innerText = '🔇';
+      } else {
+        startAmbientMelody();
+        btn.innerText = '🎵';
+      }
+    }
+
+    // ========================================================
+    // 2. ENVELOPE OPENING & HAPTIC FEEDBACK
+    // ========================================================
+    let opened = false;
+
+    function startOpening() {
+      if (opened) return;
+      opened = true;
+
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate(50); } catch (e) {}
+      }
+
+      initAudio();
+      startAmbientMelody();
+
+      const envelope = document.getElementById('envelope');
+      const envelopeScreen = document.getElementById('envelope-screen');
+      const invitationScroll = document.getElementById('invitation-scroll');
+      const musicToggle = document.getElementById('music-toggle');
+
+      envelope.classList.add('is-opened');
+
+      setTimeout(() => {
+        envelopeScreen.classList.add('dismissed');
+        invitationScroll.classList.add('revealed');
+        musicToggle.classList.add('visible');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1200);
+    }
+
+    // ========================================================
+    // 3. COUNTDOWN OR LIVE CEREMONY STATUS
+    // ========================================================
+    const targetDate = new Date('2026-09-27T11:30:00+05:30').getTime();
+    let isCeremonyStarted = false;
+    let timerInterval = null;
+
+    function checkTimer() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance <= 0) {
+        if (!isCeremonyStarted) {
+          isCeremonyStarted = true;
+          document.getElementById('countdown-wrapper').style.display = 'none';
+          document.getElementById('celebration-popup').style.display = 'block';
+        }
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').innerText = String(minutes).padStart(2, '0');
+      document.getElementById('cd-secs').innerText = String(seconds).padStart(2, '0');
+    }
+
+    timerInterval = setInterval(checkTimer, 1000);
+    checkTimer();
+
+    // ========================================================
+    // 4. DIRECT PHONE CALENDAR LAUNCH WITH FULL VENUES & MAP LINKS
+    // ========================================================
+    function handleAddToCalendar() {
+      const isAppleDevice = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      const title = "Holy Baptism of Maeve Binoy";
+      const startUtc = "20260927T060000Z"; // 11:30 AM IST
+      const endUtc = "20260927T093000Z";   // 03:00 PM IST
+      const location = "St. Antony's Church, Mannuthy, Thrissur";
+
+      // Multi-line description containing clickable links for church and reception hotel
+      const descriptionText = 
+`You are warmly invited to celebrate the Christening of Maeve Binoy!
+
+ITINERARY & VENUES:
+
+1. Holy Baptism Ceremony (11:30 AM)
+Venue: St. Antony's Church, Mannuthy, Thrissur
+Directions: https://maps.app.goo.gl/YacmdeoQfvU8uSXRA
+
+2. Lunch Reception (Following the Ceremony)
+Venue: Hamara Hotels, Thrissur
+Directions: https://maps.app.goo.gl/qPzGpJAkhRbhSAYc6?g_st=ac
+
+With love,
+Binoy & Anitta`;
+
+      if (isAndroid) {
+        // Direct calendar intent on Android devices to pre-fill the native Calendar App
+        const androidCalendarUri = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startUtc}/${endUtc}&details=${encodeURIComponent(descriptionText)}&location=${encodeURIComponent(location)}`;
+        window.open(androidCalendarUri, '_blank');
+        return;
+      }
+
+      // iOS / macOS / Universal: Generate .ics blob that launches the native Apple / Outlook Calendar app
+      const icsDescription = descriptionText.replace(/\r\n|\r|\n/g, '\\n');
+      const icsFileContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Maeve Christening//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:maeve-christening-20260927@family`,
+        `DTSTAMP:${startUtc}`,
+        `DTSTART:${startUtc}`,
+        `DTEND:${endUtc}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${icsDescription}`,
+        `LOCATION:${location}`,
+        'STATUS:CONFIRMED',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([icsFileContent], { type: 'text/calendar;charset=utf-8' });
+      const downloadLink = document.createElement('a');
+      downloadLink.href = window.URL.createObjectURL(blob);
+      downloadLink.setAttribute('download', 'Maeve_Baptism_Invitation.ics');
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
+    // ========================================================
+    // 5. HIGH-DPI CANVAS SIMULATION: PETALS & CELEBRATION FIREWORKS
+    // ========================================================
+    const canvas = document.getElementById('fx-canvas');
+    const ctx = canvas.getContext('2d');
+    let logicalWidth = 0;
+    let logicalHeight = 0;
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      logicalWidth = rect.width;
+      logicalHeight = window.innerHeight;
+
+      canvas.width = logicalWidth * dpr;
+      canvas.height = logicalHeight * dpr;
+      canvas.style.width = `${logicalWidth}px`;
+      canvas.style.height = `${logicalHeight}px`;
+
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Petal {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * (logicalWidth || 400);
+        this.y = Math.random() * -(logicalHeight || 600);
+        this.w = 9 + Math.random() * 7;
+        this.h = 13 + Math.random() * 8;
+        this.opacity = 0.35 + Math.random() * 0.4;
+        this.speedY = 1.1 + Math.random() * 1.5;
+        this.speedX = Math.sin(Math.random()) * 1.1;
+        this.angle = Math.random() * 360;
+        this.rotationSpeed = (Math.random() - 0.5) * 1.5;
+
+        const colors = [
+          'rgba(255, 214, 224, ',
+          'rgba(247, 198, 209, ',
+          'rgba(255, 230, 235, ',
+          'rgba(238, 212, 218, '
+        ];
+        this.colorBase = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += Math.sin(this.y * 0.015) + this.speedX * 0.4;
+        this.angle += this.rotationSpeed;
+
+        if (this.y > logicalHeight + 20) {
+          this.reset();
+          this.y = -20;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.angle * Math.PI) / 180);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-this.w / 2, -this.h / 3, -this.w / 2, this.h / 2, 0, this.h);
+        ctx.bezierCurveTo(this.w / 2, this.h / 2, this.w / 2, -this.h / 3, 0, 0);
+        ctx.fillStyle = this.colorBase + this.opacity + ')';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    class Spark {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4.5 + 1.5;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.018 + 0.012;
+        this.radius = Math.random() * 2 + 1.2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.04;
+        this.alpha -= this.decay;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    const petals = Array.from({ length: 22 }, () => new Petal());
+    let sparks = [];
+    let fireworkTimer = 0;
+    const fireworkColors = ['#ffd700', '#fce293', '#ffc107', '#ffb3ba', '#ffe4b5', '#ffffff'];
+
+    function triggerRocket() {
+      const x = Math.random() * (logicalWidth - 80) + 40;
+      const y = Math.random() * (logicalHeight * 0.45) + 60;
+      const chosenColor = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+
+      for (let i = 0; i < 40; i++) {
+        sparks.push(new Spark(x, y, chosenColor));
+      }
+    }
+
+    let animationFrameId = null;
+
+    function animate() {
+      ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+      petals.forEach(petal => {
+        petal.update();
+        petal.draw();
+      });
+
+      if (isCeremonyStarted) {
+        fireworkTimer++;
+        if (fireworkTimer % 45 === 0) {
+          triggerRocket();
+        }
+
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          sparks[i].update();
+          sparks[i].draw();
+          if (sparks[i].alpha <= 0) {
+            sparks.splice(i, 1);
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+    animate();
+
+    // ========================================================
+    // 6. RESOURCE & BATTERY SAVING OPTIMIZATION
+    // ========================================================
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      } else {
+        if (!animationFrameId) {
+          animate();
+        }
+        if (!timerInterval) {
+          timerInterval = setInterval(checkTimer, 1000);
+          checkTimer();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
